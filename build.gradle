@@ -1,0 +1,50 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+  id 'org.springframework.boot' version "${spring_boot_version}"
+  id 'io.spring.dependency-management' version "${spring_dependency_management_version}"
+  id 'org.jetbrains.kotlin.jvm' version "${kotlin_version}"
+  id 'org.jetbrains.kotlin.plugin.spring' version "${kotlin_version}"
+  id 'org.jetbrains.kotlin.plugin.jpa' version "${kotlin_version}"
+}
+
+group = 'tri.le'
+version = "${project_version}"
+sourceCompatibility = jdk_version
+
+configurations.configureEach {
+  exclude module: 'spring-boot-starter-logging'
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  // Spring
+  implementation 'org.springframework.boot:spring-boot-starter-actuator'
+  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
+  implementation 'org.jetbrains.kotlin:kotlin-reflect'
+  implementation 'org.jetbrains.kotlin:kotlin-stdlib'
+  implementation "org.springframework.boot:spring-boot-starter-log4j2"
+
+  implementation 'org.apache.logging.log4j:log4j-api-kotlin:1.2.0'
+
+  runtimeOnly 'org.hsqldb:hsqldb'
+
+  // Test
+  testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.withType(KotlinCompile).configureEach {
+  kotlinOptions {
+    freeCompilerArgs = ['-Xjsr305=strict']
+    jvmTarget = jdk_version
+  }
+}
+
+tasks.named('test') {
+  useJUnitPlatform()
+}
