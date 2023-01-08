@@ -6,6 +6,8 @@ import tri.le.statemachine.uti.Log
 
 abstract class StateHandler<D : Traceable> : Log {
 
+  abstract val name: String
+
   protected abstract val checkToHandle: (data: D, executedCount: Int) -> Boolean
   protected abstract fun handle(data: D)
 
