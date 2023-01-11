@@ -11,7 +11,7 @@ enum class States(val isProcessing: Boolean = true) {
   SUCCESS(false),
 
   // just default state
-  DUMMY(false),
+  NONE(false),
 }
 
 data class State(
