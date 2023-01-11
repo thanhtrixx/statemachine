@@ -9,5 +9,6 @@ data class TransferInfo(
   val to: String,
   val amount: BigInteger
 ) : Traceable {
-  override fun traceId() = transactionId
+
+  override val traceId = transactionId
 }
