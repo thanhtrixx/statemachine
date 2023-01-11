@@ -61,6 +61,6 @@ abstract class StateHandler<D : Traceable> : Log {
       .toNextAction()
   }
 
-  protected fun States.toNextAction(delayMillis: Int = 0, needSaveState: Boolean = false) =
-    NextAction(this, delayMillis, needSaveState)
+  protected fun States.toNextAction(delayMillis: Int = 0, submitNewThread: Boolean = false) =
+    NextAction(this, delayMillis, submitNewThread)
 }
