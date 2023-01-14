@@ -12,46 +12,54 @@ import java.util.concurrent.TimeUnit
 
 @Component
 class StateManager<D : Traceable>(
-  handlers: List<StateHandler<D>>, private val noOpHandler: NoOpHandler<D>,
+  handlers: List<StateHandler<D>>,
+  private val noOpHandler: NoOpHandler<D>,
+  private val stateTracker: StateTracker
 ) : Log {
 
   private val handlerMap = handlers.associateBy { it.state }
 
-  private val threadPool = Executors.newFixedThreadPool(128)
-  private val scheduledThreadPool = Executors.newScheduledThreadPool(16)
+  private val threadPool = Executors.newFixedThreadPool(1028)
+  private val scheduledThreadPool = Executors.newScheduledThreadPool(32)
 
   fun handle(data: D, nextAction: NextAction) {
-    l.info("Begin handling flow traceId: ${data.traceId}")
+    ThreadContext.put("traceId", data.traceId)
 
-    val state = nextAction.state
-
-    if (!state.isProcessing) {
-      l.info("Complete flow: $nextAction")
+    if (!nextAction.state.isProcessing) {
+      l.info{"Complete flow: $nextAction"}
       return
     }
 
     when {
-      nextAction.delayMillis > 0 -> {
-        l.info("Schedule next action. Start processing in next ${nextAction.delayMillis}")
-        scheduledThreadPool.schedule(
-          { doHandle(data, state) },
-          nextAction.delayMillis.toLong(),
-          TimeUnit.MICROSECONDS
-        )
-      }
+      nextAction.delayMillis > 0 -> scheduledHandle(data, nextAction)
 
-      nextAction.submitNewThread -> threadPool.submit { doHandle(data, state) }
+      nextAction.submitNewThread -> handleInNewThread(data, nextAction)
 
-      else -> doHandle(data, state)
+      else -> doHandle(data, nextAction)
     }
   }
 
-  private fun doHandle(data: D, state: States) {
-    ThreadContext.put("traceId", data.traceId)
+  private fun handleInNewThread(data: D, nextAction: NextAction) {
+    threadPool.submit { doHandle(data, nextAction) }
+  }
+
+  private fun scheduledHandle(data: D, nextAction: NextAction) {
+    l.info { "Schedule next state ${nextAction.state}. Start processing in next ${nextAction.delayMillis}" }
+    scheduledThreadPool.schedule(
+      { doHandle(data, nextAction) },
+      nextAction.delayMillis.toLong(), TimeUnit.MILLISECONDS
+    )
+  }
+
+  private fun doHandle(data: D, nextAction: NextAction) {
+
+    val state = nextAction.state
 
     val handler = handlerMap.getOrDefault(state, noOpHandler)
-    val nextAction = handler.handle(data, 0)
-    handle(data, nextAction)
+    val nextAction = handler.handle(data, nextAction.attemptedTimes)
 
+    stateTracker.track(data.traceId, state, nextAction.state, nextAction.attemptedTimes)
+
+    handle(data, nextAction)
   }
 }

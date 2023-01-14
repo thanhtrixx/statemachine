@@ -8,21 +8,40 @@ import tri.le.statemachine.state.States
 import tri.le.statemachine.state.handler.base.NextAction
 import tri.le.statemachine.transfer.TransferInfo
 import tri.le.statemachine.uti.Log
+import kotlin.random.Random
 
 @SpringBootApplication
 class StateMachineApplication(
-  val stateManager: StateManager<TransferInfo>,
-  val activeMq: ActiveMq
+  val stateManager: StateManager<TransferInfo>
 ) : CommandLineRunner, Log {
 
   override fun run(vararg args: String) {
     l.info("Start complete")
-    stateManager
-      .handle(
-        TransferInfo("230109-00001", "Alex", "Blob", 1000.toBigInteger()),
-        NextAction(States.INIT, submitNewThread = true)
-      )
+
+
+
+    for (i in 1..10) {
+      stateManager
+        .handle(
+          TransferInfo(i.toString().padStart(10, '0'), randomName(), randomName(), Random.nextInt(1000).toBigInteger()),
+          NextAction(States.INIT, submitNewThread = true)
+        )
+    }
+
   }
+
+  private val userList = listOf(
+    "Alex",
+    "Blob",
+    "Peter",
+    "John",
+    "Tim",
+    "Adam",
+    "Andrew",
+    "Chris",
+  )
+
+  private fun randomName() = userList[Random.nextInt(userList.size)]
 }
 
 

@@ -28,6 +28,7 @@ abstract class StateHandler<D : Traceable> : Log {
   protected abstract val errorState: States
 
   fun handle(data: D, attemptedTimes: Int = 0): NextAction {
+    ThreadContext.put("traceId", data.traceId)
     ThreadContext.put("state", state.name)
 
     if (!isNeedToHandle(data, attemptedTimes)) {
@@ -49,11 +50,15 @@ abstract class StateHandler<D : Traceable> : Log {
   }
 
   protected open fun handleError(data: D, attemptedTimes: Int): NextAction {
+    val nextAttemptedTimes = attemptedTimes + 1
     // check to retry
-    if (isNeedToHandle(data, attemptedTimes + 1)) {
-      l.info("Retrying attemptedTimes = $attemptedTimes")
+    if (isNeedToHandle(data, nextAttemptedTimes)) {
+      l.info("Retrying attemptedTimes = $nextAttemptedTimes")
       return state
-        .toNextAction(delayWhenRetry(attemptedTimes + 1))
+        .toNextAction(
+          delayMillis = delayWhenRetry(nextAttemptedTimes),
+          attemptedTimes = nextAttemptedTimes
+        )
     }
 
     // or end handling
@@ -61,6 +66,6 @@ abstract class StateHandler<D : Traceable> : Log {
       .toNextAction()
   }
 
-  protected fun States.toNextAction(delayMillis: Int = 0, submitNewThread: Boolean = false) =
-    NextAction(this, delayMillis, submitNewThread)
+  protected fun States.toNextAction(delayMillis: Int = 0, attemptedTimes: Int = 0, submitNewThread: Boolean = false) =
+    NextAction(this, delayMillis, attemptedTimes, submitNewThread)
 }
