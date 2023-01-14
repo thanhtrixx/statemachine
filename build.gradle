@@ -30,6 +30,15 @@ dependencies {
   implementation 'org.jetbrains.kotlin:kotlin-stdlib'
   implementation "org.springframework.boot:spring-boot-starter-log4j2"
 
+  // ActiveMQ Artemis
+//  implementation 'org.amqphub.spring:amqp-10-jms-spring-boot-starter:2.5.13'
+//  implementation "org.apache.activemq:artemis-core-client:${artemis_version}"
+//  implementation "org.apache.activemq:artemis-commons:${artemis_version}"
+//  implementation "org.apache.activemq:artemis-amqp-protocol:${artemis_version}"
+
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutines_version}")
+
+  // Log
   implementation 'org.apache.logging.log4j:log4j-api-kotlin:1.2.0'
 
   runtimeOnly 'org.hsqldb:hsqldb'

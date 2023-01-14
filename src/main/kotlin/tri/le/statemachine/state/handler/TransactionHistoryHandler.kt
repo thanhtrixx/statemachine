@@ -20,7 +20,7 @@ class TransactionHistoryHandler(
 
   override val errorState = TRANSACTION_HISTORY_FAILED
 
-  override fun doHandle(data: TransferInfo): States {
+  override suspend fun doHandle(transferInfo: TransferInfo): States {
 
     mockService.doSomething(80)
 

@@ -1,5 +1,6 @@
 package tri.le.statemachine.mock
 
+import kotlinx.coroutines.delay
 import org.springframework.stereotype.Component
 import tri.le.statemachine.base.DomainException
 import kotlin.random.Random
@@ -14,11 +15,11 @@ class MockService {
   /**
    *  Randomly delay current thread and throw exception
    */
-  fun doSomething(errorPercent: Int = 20) {
-    Thread.sleep(Random.nextLong(5000))
+  suspend fun doSomething(errorPercent: Int = 20) {
+    delay(Random.nextLong(5000))
 
     if (Random.nextInt(100) + errorPercent > 100) {
-      throw DomainException("Mocking exception")
+      throw DomainException("Mocking exception. Error percent $errorPercent")
     }
   }
 }

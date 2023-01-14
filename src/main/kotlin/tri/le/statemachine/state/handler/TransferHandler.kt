@@ -20,7 +20,7 @@ class TransferHandler(
 
   override val errorState = TRANSFER_FAILED
 
-  override fun doHandle(data: TransferInfo): States {
+  override suspend fun doHandle(transferInfo: TransferInfo): States {
 
     mockService.doSomething(10)
 

@@ -1,5 +1,6 @@
 package tri.le.statemachine
 
+import kotlinx.coroutines.runBlocking
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -20,7 +21,7 @@ class StateMachineApplication(
 
 
 
-    for (i in 1..10) {
+    for (i in 1..10000) {
       stateManager
         .handle(
           TransferInfo(i.toString().padStart(10, '0'), randomName(), randomName(), Random.nextInt(1000).toBigInteger()),
@@ -28,6 +29,7 @@ class StateMachineApplication(
         )
     }
 
+//    exitProcess(0)
   }
 
   private val userList = listOf(
@@ -45,6 +47,6 @@ class StateMachineApplication(
 }
 
 
-fun main(args: Array<String>) {
+fun main(args: Array<String>) = runBlocking<Unit> {
   runApplication<StateMachineApplication>(*args)
 }

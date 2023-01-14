@@ -20,7 +20,7 @@ class InitTransactionHandler(
 
   override val errorState = INIT_FAILED
 
-  override fun doHandle(transferInfo: TransferInfo): States {
+  override suspend fun doHandle(transferInfo: TransferInfo): States {
     l.info { "Init transaction $transferInfo" }
     mockService.doSomething(60)
     l.info { "Save transaction" }

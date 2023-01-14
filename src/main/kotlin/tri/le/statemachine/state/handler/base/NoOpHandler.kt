@@ -14,6 +14,6 @@ class NoOpHandler<D : Traceable> : StateHandler<D>(), Log {
   override val delayWhenRetry = multiplierDelay(0)
   override val errorState = NONE
 
-  override fun doHandle(data: D) = NONE // no-op
+  override suspend fun doHandle(data: D) = NONE // no-op
 
 }

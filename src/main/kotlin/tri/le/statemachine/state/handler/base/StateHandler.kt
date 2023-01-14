@@ -13,7 +13,7 @@ abstract class StateHandler<D : Traceable> : Log {
   protected abstract val isNeedToHandle: (data: D, attemptedTimes: Int) -> Boolean
 
   protected abstract val delayWhenRetry: (attemptedTimes: Int) -> Int
-  protected abstract fun doHandle(data: D): States
+  protected abstract suspend fun doHandle(data: D): States
 
   protected val notRetry: (data: D, attemptedTimes: Int) -> Boolean = { _, attemptedTimes -> attemptedTimes == 0 }
 
@@ -27,12 +27,12 @@ abstract class StateHandler<D : Traceable> : Log {
 
   protected abstract val errorState: States
 
-  fun handle(data: D, attemptedTimes: Int = 0): NextAction {
+  suspend fun handle(data: D, attemptedTimes: Int = 0): NextAction {
     ThreadContext.put("traceId", data.traceId)
     ThreadContext.put("state", state.name)
 
     if (!isNeedToHandle(data, attemptedTimes)) {
-      l.info { "Ignored execution" }
+      l.info("Ignored execution")
       return END_ACTION
     }
 
@@ -41,10 +41,10 @@ abstract class StateHandler<D : Traceable> : Log {
       doHandle(data)
         .toNextAction()
     } catch (e: Exception) {
-      l.error("Error when handle. Change to state $errorState", e)
+      l.error("Error. Change to state $errorState", e)
       return handleError(data, attemptedTimes)
     } finally {
-      l.info("End handling")
+      l.info { "End handling" }
       ThreadContext.clearAll()
     }
   }
@@ -53,7 +53,7 @@ abstract class StateHandler<D : Traceable> : Log {
     val nextAttemptedTimes = attemptedTimes + 1
     // check to retry
     if (isNeedToHandle(data, nextAttemptedTimes)) {
-      l.info("Retrying attemptedTimes = $nextAttemptedTimes")
+      l.info { "Retrying attemptedTimes = $nextAttemptedTimes" }
       return state
         .toNextAction(
           delayMillis = delayWhenRetry(nextAttemptedTimes),
@@ -66,6 +66,6 @@ abstract class StateHandler<D : Traceable> : Log {
       .toNextAction()
   }
 
-  protected fun States.toNextAction(delayMillis: Int = 0, attemptedTimes: Int = 0, submitNewThread: Boolean = false) =
+  private fun States.toNextAction(delayMillis: Int = 0, attemptedTimes: Int = 0, submitNewThread: Boolean = false) =
     NextAction(this, delayMillis, attemptedTimes, submitNewThread)
 }

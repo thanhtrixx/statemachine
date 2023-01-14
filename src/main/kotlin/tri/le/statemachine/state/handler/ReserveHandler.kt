@@ -20,7 +20,7 @@ class ReserveHandler(
 
   override val errorState = RESERVE_FAILED
 
-  override fun doHandle(data: TransferInfo): States {
+  override suspend fun doHandle(transferInfo: TransferInfo): States {
 
     mockService.doSomething(50)
 
