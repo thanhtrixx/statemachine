@@ -8,6 +8,8 @@ enum class States(val isProcessing: Boolean = true) {
   RESERVE_FAILED(false),
   TRANSFER,
   TRANSFER_FAILED(false),
+  TRANSACTION_HISTORY,
+  TRANSACTION_HISTORY_FAILED(false),
   SUCCESS(false),
 
   // just default state
