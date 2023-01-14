@@ -23,7 +23,7 @@ class InitTransactionHandler(
   override suspend fun doHandle(transferInfo: TransferInfo): States {
     l.info { "Init transaction $transferInfo" }
     mockService.doSomething(60)
-    l.info { "Save transaction" }
+    l.info("Save transaction")
 
     return RESERVE
   }

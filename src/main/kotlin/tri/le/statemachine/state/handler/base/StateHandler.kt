@@ -44,7 +44,7 @@ abstract class StateHandler<D : Traceable> : Log {
       l.error("Error. Change to state $errorState", e)
       return handleError(data, attemptedTimes)
     } finally {
-      l.info { "End handling" }
+      l.info("End handling")
       ThreadContext.clearAll()
     }
   }
