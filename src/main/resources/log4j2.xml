@@ -8,11 +8,15 @@
     <Console name="Console" target="SYSTEM_OUT" follow="true">
       <PatternLayout pattern="${LOG_PATTERN}" />
     </Console>
+    <File name="LogToFile" fileName="logs/app.log" immediateFlush="true" append="false">
+      <PatternLayout pattern="${LOG_PATTERN}" />
+    </File>
   </Appenders>
 
   <Loggers>
     <Root level="info">
       <AppenderRef ref="Console" />
+      <AppenderRef ref="LogToFile"/>
     </Root>
   </Loggers>
 </Configuration>
